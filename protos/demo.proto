@@ -1,0 +1,28 @@
+syntax = "proto3";
+package proto;
+
+message CreateUserRequest {
+    // @gotags: validate:"required"
+    // FirstName
+    string FirstName = 1;
+
+    // @gotags: validate:"required"
+    // LastName
+    string LastName = 2;
+
+    // @gotags: validate:"gte=0,lte=130"
+    // 年龄
+    int32 Age = 3;
+
+    // @gotags: validate:"required,email"
+    string Email = 4;
+
+    // @gotags: validate:"iscolor"
+    // alias for 'hexcolor|rgb|rgba|hsl|hsla'
+    string FavouriteColor = 5;
+}
+
+message Response {
+    string code = 1;
+    string msg = 2;
+}
