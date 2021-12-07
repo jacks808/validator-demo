@@ -8,14 +8,20 @@ import (
 	"validator-demo/tivalidator"
 )
 
-// use a single instance of Validate, it caches struct info
 var validate *validator.Validate
 
 func main() {
-	validate = validator.New()
-
-	validate.RegisterValidation("rocket", tivalidator.RocketValidator, true)
+	validate = ValidatorInit()
 	validateStruct()
+}
+
+func ValidatorInit() *validator.Validate {
+	validate := validator.New()
+	validate.RegisterValidation("rocket", tivalidator.RocketValidator, true)
+	validate.RegisterStructValidation(UserStructLevelValidation, true)
+
+	validate.RegisterValidation("public", tivalidator.Public, true)
+	return validate
 }
 
 func validateStruct() {
@@ -80,4 +86,14 @@ func buildErrorMessage(err error) string {
 		return sb.String()
 	}
 	return ""
+}
+
+func UserStructLevelValidation(sl validator.StructLevel) {
+
+	user := sl.Current().Interface().(proto.CreateUserRequest)
+
+	if len(user.FirstName) == 0 && len(user.LastName) == 0 {
+		sl.ReportError(user.FirstName, "fname", "FirstName", "fnameorlname", "")
+		sl.ReportError(user.LastName, "lname", "LastName", "fnameorlname", "")
+	}
 }

@@ -1,0 +1,94 @@
+syntax = "proto3";
+package proto;
+
+
+message CreateEdgeServiceRequest {
+  // @gotags: validate:"required"
+  string RequestId = 1;
+
+  // @gotags: validate:"required,public"
+  // [optional] <<<公共请求参数>>> 私有云忽略，适配腾讯云API规范
+  int64 AppId = 2;
+
+  // @gotags: validate:"required,public"
+  // [optional] <<<公共请求参数>>> 私有云忽略，适配腾讯云API规范
+  string Region = 3;
+
+  // [optional] <<<公共请求参数>>> 私有云忽略，适配腾讯云API规范
+  // @gotags: validate:"required,public"
+  string Action = 4;
+
+  // @gotags: validate:"required,public"
+  // [required] <<<公共请求参数>>> 用户 uin, 网关自动设置
+  string Uin = 5;
+
+  // @gotags: validate:"required,public"
+  // [optional] <<<公共请求参数>>> 私有云忽略，适配腾讯云API规范
+  string SubAccountUin = 6;
+
+  // @gotags: validate:"required,public"
+  // [optional] <<<公共请求参数>>> 私有云忽略，适配腾讯云API规范
+  string Version = 7;
+
+  // @gotags: validate:"required"
+  // 语言选项: zh-CN; en-US
+  string Language = 8;
+
+  // @gotags: validate:"required,gt=0,dive,required"
+  // [required] 边缘单元信息
+  repeated EdgeUnit EdgeUnits = 10;
+
+  // @gotags: validate:"required"
+  string ServiceGroupId = 12;
+
+  // @gotags: validate:"required"
+  // [required] 服务类别名称
+  string ServiceGroupName = 13;
+
+  // @gotags: validate:"required,max=500"
+  // [optional] 在线推理服务描述
+  string ServiceDescription = 14;
+
+  // @gotags: validate:"required"
+  // [required] 在线推理服务对应的模型服务配置Id
+  string ServiceConfigId = 15;
+
+  // @gotags: validate:"min=0"
+  // [optional] 兼容旧协议，业务ID，以TiBusinessId代替
+  string BusinessId = 16;
+
+  // @gotags: validate:"min=0"
+  // [optional] 兼容旧协议，项目ID，以TiProjectId代替
+  string AppGroupId = 17;
+
+  // @gotags: validate:""
+  // [optional] 工作负载(Workload)类型，可选：["deployment", "statefulset"]，不填默认deployment
+  string WorkloadType = 18;
+
+  // @gotags: validate:"required"
+  // [required] 是否是灰度更新
+  bool CanaryUpdate = 23;
+
+  // @gotags: validate:"required, gt=0"
+  // [required] 项目Id
+  int64 TiProjectId = 24;
+
+  // @gotags: validate:"required, gt=0"
+  // [required] 业务Id
+  int64 TiBusinessId = 25;
+
+  // @gotags: validate:"required"
+  // [optional] 服务类型。服务类型(platform_service:平台服务, user_service:用户服务)
+  string ServiceType = 26;
+}
+
+message EdgeUnit {
+  // @gotags: validate:"required"
+  uint32 Id = 1;
+  // @gotags: validate:"required"
+  string Name = 2;
+  // @gotags: validate:"required"
+  string NodeGroup = 3;
+}
+
+
