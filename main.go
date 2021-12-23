@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"strings"
-	"validator-demo/proto"
+	pb "validator-demo/proto"
 	"validator-demo/tivalidator"
 )
 
@@ -26,7 +26,7 @@ func ValidatorInit() *validator.Validate {
 
 func validateStruct() {
 
-	user := &proto.CreateUserRequest{
+	user := pb.CreateUserRequest{
 		FirstName:      "Badger",
 		LastName:       "Smith",
 		Age:            135,
@@ -90,7 +90,7 @@ func buildErrorMessage(err error) string {
 
 func UserStructLevelValidation(sl validator.StructLevel) {
 
-	user := sl.Current().Interface().(proto.CreateUserRequest)
+	user := sl.Current().Interface().(pb.CreateUserRequest)
 
 	if len(user.FirstName) == 0 && len(user.LastName) == 0 {
 		sl.ReportError(user.FirstName, "fname", "FirstName", "fnameorlname", "")
