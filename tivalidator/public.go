@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// todo : version, TiProjectId, TiBussinessId
 func Public(fl validator.FieldLevel) bool {
 	field := fl.Field()
 

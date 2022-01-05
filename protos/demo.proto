@@ -1,4 +1,5 @@
 syntax = "proto3";
+option go_package="./protos";
 package proto;
 
 message CreateUserRequest {
@@ -20,6 +21,14 @@ message CreateUserRequest {
     // @gotags: validate:"iscolor"
     // alias for 'hexcolor|rgb|rgba|hsl|hsla'
     string FavouriteColor = 5;
+
+    // @gotags: validate:"datetime=2006-01-02"
+    // 时间的格式，参考go原生库的time
+    string CreateTime = 6;
+
+    // @gotags: validate:"version"
+    // version格式：类似 1.0.1
+    string Version = 7;
 }
 
 message Response {
