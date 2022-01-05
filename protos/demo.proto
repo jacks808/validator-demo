@@ -25,6 +25,10 @@ message CreateUserRequest {
     // @gotags: validate:"datetime=2006-01-02"
     // 时间的格式，参考go原生库的time
     string CreateTime = 6;
+
+    // @gotags: validate:"version"
+    // version格式：类似 1.0.1
+    string Version = 7;
 }
 
 message Response {

@@ -30,13 +30,13 @@ func ValidatorInit() *validator.Validate {
 	validate.RegisterStructValidation(UserStructLevelValidation, true)
 
 	validate.RegisterValidation("public", tivalidator.Public, true)
+	validate.RegisterValidation("version", tivalidator.Version, true)
 
 	// init translator
 	enTranslator := en.New()
 	uni = ut.New(enTranslator, enTranslator)
 	trans, _ := uni.GetTranslator("en")
 
-	validate = validator.New()
 	en_translations.RegisterDefaultTranslations(validate, trans)
 	return validate
 }
@@ -51,6 +51,7 @@ func validateStruct() {
 		FavouriteColor: "#000-",
 		// format : 2006-01-02 15:04:05
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		Version:    "1.0.2.",
 	}
 
 	// returns nil or ValidationErrors ( []FieldError )
