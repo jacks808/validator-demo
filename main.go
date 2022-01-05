@@ -2,13 +2,22 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
+	log "github.com/sirupsen/logrus"
 	"strings"
+	"time"
 	pb "validator-demo/proto"
 	"validator-demo/tivalidator"
 )
 
-var validate *validator.Validate
+var (
+	uni      *ut.UniversalTranslator
+	validate *validator.Validate
+	trans    ut.Translator
+)
 
 func main() {
 	validate = ValidatorInit()
@@ -21,6 +30,14 @@ func ValidatorInit() *validator.Validate {
 	validate.RegisterStructValidation(UserStructLevelValidation, true)
 
 	validate.RegisterValidation("public", tivalidator.Public, true)
+
+	// init translator
+	enTranslator := en.New()
+	uni = ut.New(enTranslator, enTranslator)
+	trans, _ := uni.GetTranslator("en")
+
+	validate = validator.New()
+	en_translations.RegisterDefaultTranslations(validate, trans)
 	return validate
 }
 
@@ -32,13 +49,14 @@ func validateStruct() {
 		Age:            135,
 		Email:          "Badger.Smith@gmail.com",
 		FavouriteColor: "#000-",
+		// format : 2006-01-02 15:04:05
+		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	// returns nil or ValidationErrors ( []FieldError )
 	err := validate.Struct(user)
 	if err != nil {
-		msg := buildErrorMessage(err)
-		fmt.Println(msg)
+		log.Errorf(buildErrorMessage(err))
 		return
 	}
 
@@ -60,8 +78,6 @@ func buildErrorMessage(err error) string {
 			return fmt.Sprintf("%v", err)
 		}
 
-		sb.WriteString("InvalidParameterError\n")
-
 		for _, err := range err.(validator.ValidationErrors) {
 			count++
 			//fmt.Printf("Namespace: %v\n", err.Namespace())
@@ -74,12 +90,13 @@ func buildErrorMessage(err error) string {
 			//fmt.Printf("Type: %v\n", err.Type())
 			//fmt.Printf("Value: %v\n", err.Value())
 			//fmt.Printf("Param: %v\n", err.Param())
-			//fmt.Println()
+
+			// 翻译标准错误结果
+			fmt.Println(err.Translate(trans))
 
 			// 构建标准Error
-			msg := fmt.Sprintf("error %d, field: '%v', current value: '%v', field require: '%v %v'\n",
+			log.Errorf("InvalidParameter Error %d, field:'%v', current value: '%v', field require: '%v %v'\n",
 				count, err.Field(), err.Value(), err.Tag(), err.Param())
-			sb.WriteString(msg)
 		}
 
 		// from here you can create your own error messages in whatever language you wish
