@@ -20,17 +20,31 @@ var (
 )
 
 func main() {
-	validate = ValidatorInit()
-	validateStruct()
+
+	now := time.Now().UnixNano()
+	validate = NewValidator()
+	req := pb.CreateUserRequest{
+		FirstName:      "Badger",
+		LastName:       "Smith",
+		Age:            135,
+		Email:          "Badger.Smith@gmail.com",
+		FavouriteColor: "#000-",
+		// format : 2006-01-02 15:04:05
+		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		Version:    "1.0.2.",
+	}
+	RegisterTag(validate, "version", tivalidator.Version)
+	validateStruct(req)
+	// 性能测试
+	fmt.Printf("cost time %fms", float64(time.Now().UnixNano()-now)/1e6)
 }
 
-func ValidatorInit() *validator.Validate {
+func NewValidator() *validator.Validate {
 	validate := validator.New()
-	validate.RegisterValidation("rocket", tivalidator.RocketValidator, true)
 	validate.RegisterStructValidation(UserStructLevelValidation, true)
 
 	validate.RegisterValidation("public", tivalidator.Public, true)
-	validate.RegisterValidation("version", tivalidator.Version, true)
+	validate.RegisterValidation("port", tivalidator.Port, true)
 
 	// init translator
 	enTranslator := en.New()
@@ -41,44 +55,30 @@ func ValidatorInit() *validator.Validate {
 	return validate
 }
 
-func validateStruct() {
+func RegisterTag(validate *validator.Validate, tag string, fn validator.Func) {
+	validate.RegisterValidation(tag, fn, true)
+}
 
-	user := pb.CreateUserRequest{
-		FirstName:      "Badger",
-		LastName:       "Smith",
-		Age:            135,
-		Email:          "Badger.Smith@gmail.com",
-		FavouriteColor: "#000-",
-		// format : 2006-01-02 15:04:05
-		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-		Version:    "1.0.2.",
-	}
-
+func validateStruct(s interface{}) {
 	// returns nil or ValidationErrors ( []FieldError )
-	err := validate.Struct(user)
-	if err != nil {
-		log.Errorf(buildErrorMessage(err))
-		return
+	err := validate.Struct(s)
+	errorMessage := buildErrorMessage(err)
+	if errorMessage != "" {
+		// 业务层自己处理
+		log.Errorf(errorMessage)
 	}
-
 	// do sth such as save user to database...
 }
 
 // build error message
 func buildErrorMessage(err error) string {
-	count := 0
-
-	sb := strings.Builder{}
-
 	if err != nil {
-
-		// this check is only needed when your code could produce
-		// an invalid value for validation such as interface with nil
-		// value most including myself do not usually have code like this.
 		if _, ok := err.(*validator.InvalidValidationError); ok {
 			return fmt.Sprintf("%v", err)
 		}
 
+		count := 0
+		sb := strings.Builder{}
 		for _, err := range err.(validator.ValidationErrors) {
 			count++
 			//fmt.Printf("Namespace: %v\n", err.Namespace())
@@ -96,8 +96,9 @@ func buildErrorMessage(err error) string {
 			fmt.Println(err.Translate(trans))
 
 			// 构建标准Error
-			log.Errorf("InvalidParameter Error %d, field:'%v', current value: '%v', field require: '%v %v'\n",
+			sprintf := fmt.Sprintf("InvalidParameter Error %d, field:'%v', current value: '%v', field require: '%v %v'\n",
 				count, err.Field(), err.Value(), err.Tag(), err.Param())
+			sb.Write([]byte(sprintf))
 		}
 
 		// from here you can create your own error messages in whatever language you wish
