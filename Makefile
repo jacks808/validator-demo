@@ -8,7 +8,7 @@ OUTPUT_DIR := $(PWD)/bin
 TARGET := validator
 
 COMMIT=$(shell git rev-parse --short HEAD)
-CURVER=$(shell git rev-parse ==abbrev-ref HEAD | awk -F'/' '{print $$2}')
+CURVER=$(shell git rev-parse --abbrev-ref HEAD | awk -F'/' '{print $$2}')
 VERSION=$(CURVER)_$(COMMIT)
 
 BUILD_TIME=$(shell date "+%Y-%m-%d %H:%M:%S")
@@ -28,7 +28,5 @@ run:
 .PHONY:build
 build:
 	@echo "VERSION: $(VERSION), BUILD_TIME: $(BUILD_TIME), GIT_COMMIT_ID: $(GIT_COMMIT_ID)"
-	@for tar in $(TARGET); do
-  		GO111MODULE=on GOOS=linux go build -o $(OUTPUT_DIR)/$${tar} \
+  		GO111MODULE=on GOOS=linux go build -o validator main.go \
   		-a -ldflags "-X 'main.Version=$(VERSION)'-X 'main.BuildTime=$(BUILD_TIME)' -X 'main.GitCommitID=$(GIT_COMMIT_ID)'" \
-  		$(CMD)
