@@ -9,7 +9,7 @@ import (
 )
 
 func TestRequest(t *testing.T) {
-	validate := tivalidator.NewValidator()
+	tivalidator.Init()
 	req := pb.CreateUserRequest{
 		FirstName:      "Badger",
 		LastName:       "Smith",
@@ -20,8 +20,8 @@ func TestRequest(t *testing.T) {
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Version:    "1.0.2.",
 	}
-	tivalidator.RegisterTag(validate, "version", tivalidator.Version)
-	errorMessage := tivalidator.ValidateStruct(validate, req)
+	tivalidator.RegisterTag("version", tivalidator.Version)
+	errorMessage := tivalidator.ValidateStruct(req)
 	if errorMessage != "" {
 		// 业务层自己处理
 		log.Errorf(errorMessage)
