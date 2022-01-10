@@ -1,7 +1,7 @@
 package test
 
 import (
-	log "github.com/sirupsen/logrus"
+	"fmt"
 	"testing"
 	"time"
 	pb "validator-demo/proto"
@@ -22,8 +22,8 @@ func TestRequest(t *testing.T) {
 	}
 	tivalidator.RegisterTag("version", tivalidator.Version)
 	errorMessage := tivalidator.ValidateStruct(req)
-	if errorMessage != "" {
-		// 业务层自己处理
-		log.Errorf(errorMessage)
+	for _, err := range errorMessage {
+		fmt.Printf("InvalidParameter Error ,field:'%v', current value: '%v', field require: '%v %v'\n",
+			err.Field, err.Value, err.Tag, err.Param)
 	}
 }

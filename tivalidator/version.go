@@ -1,12 +1,11 @@
 package tivalidator
 
 import (
-	"github.com/go-playground/validator/v10"
 	"reflect"
 	"strings"
 )
 
-func Version(fl validator.FieldLevel) bool {
+func Version(fl FieldLevel) bool {
 	field := fl.Field()
 	switch field.Kind() {
 	case reflect.String:

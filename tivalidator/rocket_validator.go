@@ -1,14 +1,12 @@
 package tivalidator
 
-
 import (
-	"github.com/go-playground/validator/v10"
 	"reflect"
 	"strings"
 )
 
 // rocketValidator implements validator.FieldLevel
-func RocketValidator(fl validator.FieldLevel) bool {
+func RocketValidator(fl FieldLevel) bool {
 	field := fl.Field()
 
 	switch field.Kind() {
