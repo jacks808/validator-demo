@@ -20,7 +20,7 @@ func TestRequest(t *testing.T) {
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Version:    "1.0.2.",
 	}
-	tivalidator.RegisterTag("version", tivalidator.Version)
+	tivalidator.RegisterValidator("version", tivalidator.Version)
 	errorMessage := tivalidator.ValidateStruct(req)
 	for _, err := range errorMessage {
 		fmt.Printf("InvalidParameter Error ,field:'%v', current value: '%v', field require: '%v %v'\n",
