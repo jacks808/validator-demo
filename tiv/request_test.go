@@ -1,15 +1,13 @@
-package test
+package tiv
 
 import (
 	"fmt"
 	"testing"
 	"time"
 	pb "validator-demo/proto"
-	"validator-demo/tivalidator"
 )
 
 func TestRequest(t *testing.T) {
-	tivalidator.Init()
 	req := pb.CreateUserRequest{
 		FirstName:      "Badger",
 		LastName:       "Smith",
@@ -20,8 +18,8 @@ func TestRequest(t *testing.T) {
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Version:    "1.0.2.",
 	}
-	tivalidator.RegisterValidator("version", tivalidator.Version)
-	errorMessage := tivalidator.ValidateStruct(req)
+	RegisterValidator("version", Version)
+	errorMessage := ValidateStruct(req)
 	for _, err := range errorMessage {
 		fmt.Printf("InvalidParameter Error ,field:'%v', current value: '%v', field require: '%v %v'\n",
 			err.Field, err.Value, err.Tag, err.Param)

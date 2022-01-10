@@ -1,11 +1,8 @@
-package tivalidator
+package tiv
 
 import (
 	"errors"
-	_ "github.com/go-playground/locales/en"
-	_ "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	_ "github.com/go-playground/validator/v10/translations/en"
 )
 
 var (
@@ -14,7 +11,7 @@ var (
 	// trans    ut.Translator
 )
 
-func Init() {
+func init() {
 	validate = validator.New()
 
 	RegisterValidator("public", Public)

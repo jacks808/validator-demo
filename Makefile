@@ -1,6 +1,5 @@
 
 PWD = $(shell pwd)
-
 proto_dir=./protos
 pb_dir=./proto
 
@@ -15,12 +14,15 @@ BUILD_TIME=$(shell date "+%Y-%m-%d %H:%M:%S")
 GIT_COMMIT_ID=$(shell git rev-parse HEAD)
 
 
-clean:
-	@rm -vf ${pb_dir}/*.pb.go
 
 proto: clean
+	@echo "=============> proto"
 	protoc --proto_path=${proto_dir} --go_out=paths=source_relative:${pb_dir} ${proto_dir}/*.proto
 	protoc-go-inject-tag -input="./${pb_dir}/*.pb.go"
+
+clean:
+	@echo "=============> clean"
+	@rm -vf ${pb_dir}/*.pb.go
 
 run:
 	go run ./main.go

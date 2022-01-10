@@ -1,11 +1,12 @@
-package tivalidator
+package tiv
 
 import (
 	"reflect"
 	"strings"
 )
 
-func Public(fl FieldLevel) bool {
+// rocketValidator implements validator.FieldLevel
+func RocketValidator(fl FieldLevel) bool {
 	field := fl.Field()
 
 	switch field.Kind() {

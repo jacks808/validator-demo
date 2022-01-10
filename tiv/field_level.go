@@ -1,4 +1,4 @@
-package tivalidator
+package tiv
 
 import "reflect"
 
