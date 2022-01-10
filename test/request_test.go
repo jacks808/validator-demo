@@ -1,7 +1,7 @@
 package test
 
 import (
-	log "github.com/sirupsen/logrus"
+	"fmt"
 	"testing"
 	"time"
 	pb "validator-demo/proto"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestRequest(t *testing.T) {
-	validate := tivalidator.NewValidator()
+	tivalidator.Init()
 	req := pb.CreateUserRequest{
 		FirstName:      "Badger",
 		LastName:       "Smith",
@@ -20,10 +20,10 @@ func TestRequest(t *testing.T) {
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		Version:    "1.0.2.",
 	}
-	tivalidator.RegisterTag(validate, "version", tivalidator.Version)
-	errorMessage := tivalidator.ValidateStruct(validate, req)
-	if errorMessage != "" {
-		// 业务层自己处理
-		log.Errorf(errorMessage)
+	tivalidator.RegisterTag("version", tivalidator.Version)
+	errorMessage := tivalidator.ValidateStruct(req)
+	for _, err := range errorMessage {
+		fmt.Printf("InvalidParameter Error ,field:'%v', current value: '%v', field require: '%v %v'\n",
+			err.Field, err.Value, err.Tag, err.Param)
 	}
 }

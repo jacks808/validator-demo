@@ -1,27 +1,25 @@
 package tivalidator
 
 import (
-	"fmt"
+	"errors"
 	_ "github.com/go-playground/locales/en"
 	_ "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-playground/validator/v10/translations/en"
-	log "github.com/sirupsen/logrus"
-	"strings"
-	"time"
 )
 
-//var (
-//	uni      *ut.UniversalTranslator
-//	validate *validator.Validate
-//	trans    ut.Translator
-//)
+var (
+	// uni      *ut.UniversalTranslator
+	validate *validator.Validate
+	// trans    ut.Translator
+)
 
-func NewValidator() *validator.Validate {
-	validate := validator.New()
+func Init() {
+	validate = validator.New()
 
-	validate.RegisterValidation("public", Public, true)
-	validate.RegisterValidation("port", Port, true)
+	RegisterTag("public", Public)
+	RegisterTag("port", Port)
+	RegisterTag("version", Version)
 
 	// init translator
 	//enTranslator := en.New()
@@ -29,55 +27,73 @@ func NewValidator() *validator.Validate {
 	//trans, _ := uni.GetTranslator("en")
 	//
 	//en_translations.RegisterDefaultTranslations(validate, trans)
-	return validate
 }
 
-func RegisterTag(validate *validator.Validate, tag string, fn validator.Func) {
-	validate.RegisterValidation(tag, fn, true)
+// RegisterTag 注册函数适配器，自定义，并加校验
+func RegisterTag(tag string, fn func(fl FieldLevel) bool) error {
+	if len(tag) == 0 {
+		return errors.New("function Key cannot be empty")
+	}
+	if fn == nil {
+		return errors.New("function cannot be empty")
+	}
+	err := validate.RegisterValidation(tag, convertFieldLevelFunc(fn), true)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func ValidateStruct(validate *validator.Validate, s interface{}) string {
-	now := time.Now().UnixNano()
-	err := validate.Struct(s)
-	errorMessage := buildErrorMessage(err)
-	// 性能测试
-	log.Infof("validator parse struct cost time %fms", float64(time.Now().UnixNano()-now)/1e6)
-	return errorMessage
+func convertFieldLevelFunc(f func(fl FieldLevel) bool) validator.Func {
+	return func(fl validator.FieldLevel) bool {
+		return f(fl)
+	}
 }
+
+func ValidateStruct(s interface{}) []ValidationError {
+	return convert(validate.Struct(s))
+}
+
+//func InitTrans(fn ) {
+//
+//}
+//
+//func Trans(e ValidationError) string {
+//
+//}
 
 // build error message
-func buildErrorMessage(err error) string {
+func convert(err error) []ValidationError {
 	if err != nil {
+
+		result := make([]ValidationError, 1)
+
+		currError := ValidationError{
+			RealError: err,
+		}
+
 		if _, ok := err.(*validator.InvalidValidationError); ok {
-			return fmt.Sprintf("%v", err)
+			result = append(result, currError)
+			return result
 		}
 
-		count := 0
-		sb := strings.Builder{}
 		for _, err := range err.(validator.ValidationErrors) {
-			count++
-			//fmt.Printf("Namespace: %v\n", err.Namespace())
-			//fmt.Printf("Field: %v\n", err.Field())
-			//fmt.Printf("StructNamespace: %v\n", err.StructNamespace())
-			//fmt.Printf("StructField: %v\n", err.StructField())
-			//fmt.Printf("Tag: %v\n", err.Tag())
-			//fmt.Printf("ActualTag: %v\n", err.ActualTag())
-			//fmt.Printf("Kind: %v\n", err.Kind())
-			//fmt.Printf("Type: %v\n", err.Type())
-			//fmt.Printf("Value: %v\n", err.Value())
-			//fmt.Printf("Param: %v\n", err.Param())
+			currError.Tag = err.Tag()
+			currError.ActualTag = err.ActualTag()
+			currError.Namespace = err.Namespace()
+			currError.StructNamespace = err.StructNamespace()
+			currError.Field = err.Field()
+			currError.StructField = err.StructField()
+			currError.Value = err.Value()
+			currError.Param = err.Param()
+			currError.Kind = err.Kind()
+			currError.Type = err.Type()
+			currError.Error = err.Error()
 
-			// 翻译标准错误结果
-			// fmt.Println(err.Translate(trans))
-
-			// 构建标准Error
-			sprintf := fmt.Sprintf("InvalidParameter Error %d, field:'%v', current value: '%v', field require: '%v %v'\n",
-				count, err.Field(), err.Value(), err.Tag(), err.Param())
-			sb.Write([]byte(sprintf))
+			result = append(result, currError)
 		}
-
-		// from here you can create your own error messages in whatever language you wish
-		return sb.String()
+		return result
 	}
-	return ""
+
+	return nil
 }

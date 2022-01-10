@@ -1,13 +1,11 @@
 package tivalidator
 
 import (
-	"github.com/go-playground/validator/v10"
 	"reflect"
 	"strings"
 )
 
-// todo : version, TiProjectId, TiBussinessId
-func Public(fl validator.FieldLevel) bool {
+func Public(fl FieldLevel) bool {
 	field := fl.Field()
 
 	switch field.Kind() {

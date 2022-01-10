@@ -2,12 +2,11 @@ package tivalidator
 
 import (
 	"fmt"
-	"github.com/go-playground/validator/v10"
 	"reflect"
 	"strconv"
 )
 
-func Port(fl validator.FieldLevel) bool {
+func Port(fl FieldLevel) bool {
 	field := fl.Field()
 	switch field.Kind() {
 	case reflect.String:
