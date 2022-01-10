@@ -17,10 +17,10 @@ var (
 func Init() {
 	validate = validator.New()
 
-	RegisterTag("public", Public)
-	RegisterTag("port", Port)
-	RegisterTag("version", Version)
-
+	RegisterValidator("public", Public)
+	RegisterValidator("port", Port)
+	RegisterValidator("version", Version)
+	RegisterAlias("keyMax", "max=10")
 	// init translator
 	//enTranslator := en.New()
 	//uni = ut.New(enTranslator, enTranslator)
@@ -29,8 +29,8 @@ func Init() {
 	//en_translations.RegisterDefaultTranslations(validate, trans)
 }
 
-// RegisterTag 注册函数适配器，自定义，并加校验
-func RegisterTag(tag string, fn func(fl FieldLevel) bool) error {
+// RegisterValidator 注册自定义验证函数
+func RegisterValidator(tag string, fn func(fl FieldLevel) bool) error {
 	if len(tag) == 0 {
 		return errors.New("function Key cannot be empty")
 	}
@@ -42,6 +42,12 @@ func RegisterTag(tag string, fn func(fl FieldLevel) bool) error {
 		return err
 	}
 	return nil
+}
+
+// RegisterAlias 给tag注册别名
+// Example: RegisterAlias("keymax", "max=10")
+func RegisterAlias(alias string, tag string) {
+	validate.RegisterAlias(alias, tag)
 }
 
 func convertFieldLevelFunc(f func(fl FieldLevel) bool) validator.Func {
