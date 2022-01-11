@@ -12,15 +12,12 @@ message CreateUserRequest {
     string LastName = 2;
 
     // @gotags: validate:"gte=0,lte=130"
-    // 年龄
+    // Age
     int32 Age = 3;
 
     // @gotags: validate:"required,email"
+    // email
     string Email = 4;
-
-    // @gotags: validate:"iscolor"
-    // alias for 'hexcolor|rgb|rgba|hsl|hsla'
-    string FavouriteColor = 5;
 
     // @gotags: validate:"datetime=2006-01-02"
     // 时间的格式，参考go原生库的time
@@ -29,6 +26,19 @@ message CreateUserRequest {
     // @gotags: validate:"version"
     // version格式：类似 1.0.1
     string Version = 7;
+
+    // @gotags: validate:"required,dive,required"
+    // friends
+    repeated Friend friends = 8;
+}
+
+message Friend {
+    // @gotags: validate:"required"
+    uint32 Id = 1;
+    // @gotags: validate:"required"
+    string Name = 2;
+    // @gotags: validate:"required,number"
+    string Group = 3;
 }
 
 message Response {
