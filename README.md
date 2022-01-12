@@ -157,7 +157,45 @@ errorMessage := ValidateStruct(req)
 
 ### example2
 
+自定义验证器。利用go的反射机制，自定义验证器并注册到ti- validate里。 
 
+> 注意: 使用与现有函数相同的标签名称将覆盖现有的
+
+例如有一个服务里，所有的description相关字段都要限制字符串长度为500，那么可以为description相关字段自定义一个验证器，给它起名"desc"，并注册到ti- validate，这样就能在定义字段的时候，加上`// @gotags: validate:"desc"`便可以省去业务逻辑校验代码。
+
+1. 首先定义一个校验函数，入参和出参分别为tiv.FieldLevel和bool
+
+```go
+
+func DescriptionValidator(fl FieldLevel) bool {
+  // 获取当前字段 refect.value
+	field := fl.Field()
+
+  // 根据当前字段的类型，来做不同的处理
+	switch field.Kind() {
+	case reflect.String:
+		return int64(utf8.RuneCountInString(field.String())) <= 500
+	default:
+		return false
+	}
+}
+```
+
+2. 注册到ti- validate中，第一个参数为验证器的tag名，第二个参数为校验函数。
+
+```go
+RegisterValidator("desc", DescriptionValidator)
+```
+
+### example3
+
+给tag注册一个别名。比如
+
+`RegisterAlias("keymax", "max=10")` 那么tag"keymax"便可以等同于"max=10"。
+
+
+
+全部validator tag参考：doc.md
 
 ## install requirements
 
